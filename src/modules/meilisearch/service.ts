@@ -1,5 +1,4 @@
 import { MedusaError } from "@medusajs/framework/utils"
-import { Meilisearch } from "meilisearch"
 
 export type MeilisearchIndexType = "product"
 
@@ -7,6 +6,22 @@ type MeilisearchOptions = {
   host: string
   apiKey: string
   productIndexName: string
+}
+
+// Locally typed to avoid a static ESM import in a CJS module.
+// meilisearch >=0.38 ships as ESM-only; use dynamic import() instead.
+type MeiliIndex = {
+  addDocuments(
+    docs: Record<string, unknown>[],
+    opts?: { primaryKey: string }
+  ): Promise<unknown>
+  getDocument(id: string): Promise<Record<string, unknown>>
+  deleteDocuments(ids: string[]): Promise<unknown>
+  search(query: string): Promise<{ hits: Record<string, unknown>[] }>
+  updateSettings(settings: Record<string, unknown>): Promise<unknown>
+}
+type MeiliClient = {
+  index(name: string): MeiliIndex
 }
 
 export type MeilisearchFeaturesConfig = {
@@ -28,7 +43,8 @@ export const DEFAULT_MEILI_FEATURES: MeilisearchFeaturesConfig = {
 }
 
 export default class MeilisearchModuleService {
-  private client: InstanceType<typeof Meilisearch> | null = null
+  // Promise-based to support ESM-only dynamic import() inside CJS
+  private clientPromise: Promise<MeiliClient> | null = null
   private options: MeilisearchOptions
 
   constructor({}: Record<string, unknown>, options: MeilisearchOptions) {
@@ -42,24 +58,31 @@ export default class MeilisearchModuleService {
       return
     }
 
-    this.client = new Meilisearch({
-      host: options.host,
-      apiKey: options.apiKey,
-    })
+    // Pre-warm: kick off the ESM dynamic import immediately
+    this.clientPromise = this.createClient()
   }
 
-  private getClient(): InstanceType<typeof Meilisearch> {
-    if (!this.client) {
+  private async createClient(): Promise<MeiliClient> {
+    // Dynamic import avoids the CJS/ESM conflict (meilisearch >=0.38 is ESM-only)
+    const { Meilisearch } = await import("meilisearch")
+    return new Meilisearch({
+      host: this.options.host,
+      apiKey: this.options.apiKey,
+    }) as unknown as MeiliClient
+  }
+
+  private async getClient(): Promise<MeiliClient> {
+    if (!this.clientPromise) {
       throw new MedusaError(
         MedusaError.Types.INVALID_ARGUMENT,
         "Meilisearch client is not initialized. Set MEILISEARCH_HOST, MEILISEARCH_API_KEY, and MEILISEARCH_PRODUCT_INDEX_NAME env vars."
       )
     }
-    return this.client
+    return this.clientPromise
   }
 
   // ── Index name ─────────────────────────────────────────────────────────────
-  async getIndexName(type: MeilisearchIndexType): Promise<string> {
+  getIndexName(type: MeilisearchIndexType): string {
     switch (type) {
       case "product":
         return this.options.productIndexName
@@ -75,8 +98,8 @@ export default class MeilisearchModuleService {
   ): Promise<void> {
     if (!data.length) return
 
-    const client = this.getClient()
-    const indexName = await this.getIndexName(type)
+    const client = await this.getClient()
+    const indexName = this.getIndexName(type)
     const index = client.index(indexName)
 
     const documents = data.map((item) => ({ ...item, id: item.id as string }))
@@ -90,8 +113,8 @@ export default class MeilisearchModuleService {
   ): Promise<{ results: Array<Record<string, unknown>> }> {
     if (!ids.length) return { results: [] }
 
-    const client = this.getClient()
-    const indexName = await this.getIndexName(type)
+    const client = await this.getClient()
+    const indexName = this.getIndexName(type)
     const index = client.index(indexName)
 
     try {
@@ -99,7 +122,7 @@ export default class MeilisearchModuleService {
       for (const id of ids) {
         try {
           const doc = await index.getDocument(id)
-          results.push(doc as Record<string, unknown>)
+          results.push(doc)
         } catch {
           // Document doesn't exist yet — skip
         }
@@ -117,8 +140,8 @@ export default class MeilisearchModuleService {
   ): Promise<void> {
     if (!ids.length) return
 
-    const client = this.getClient()
-    const indexName = await this.getIndexName(type)
+    const client = await this.getClient()
+    const indexName = this.getIndexName(type)
     const index = client.index(indexName)
 
     await index.deleteDocuments(ids)
@@ -126,8 +149,8 @@ export default class MeilisearchModuleService {
 
   // ── Apply index settings (searchable / filterable / sortable) ──────────────
   async applySettings(features: Partial<MeilisearchFeaturesConfig>): Promise<void> {
-    const client = this.getClient()
-    const indexName = await this.getIndexName("product")
+    const client = await this.getClient()
+    const indexName = this.getIndexName("product")
     const index = client.index(indexName)
 
     const settings: Record<string, unknown> = {}
@@ -145,17 +168,18 @@ export default class MeilisearchModuleService {
       settings.typoTolerance = { enabled: features.typoTolerance }
 
     if (Object.keys(settings).length) {
-      await index.updateSettings(settings as any)
+      await index.updateSettings(settings)
     }
   }
 
   // ── Storefront search ──────────────────────────────────────────────────────
   async searchProducts(query: string): Promise<Record<string, unknown>[]> {
-    const client = this.getClient()
-    const indexName = await this.getIndexName("product")
+    const client = await this.getClient()
+    const indexName = this.getIndexName("product")
     const index = client.index(indexName)
 
     const { hits } = await index.search(query)
-    return hits as Record<string, unknown>[]
+    return hits
   }
 }
+
