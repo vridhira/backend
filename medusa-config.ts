@@ -109,6 +109,19 @@ module.exports = defineConfig({
     {
       resolve: "./src/modules/wishlist",
     },
+
+    // ── Custom: Algolia Search Module ────────────────────────────────────────
+    // Indexes products in Algolia on create/update/delete events.
+    // Trigger a full reindex from: Admin → Algolia Search → Sync All Products
+    // Get credentials: https://dashboard.algolia.com/account/api-keys
+    {
+      resolve: "./src/modules/algolia",
+      options: {
+        appId: process.env.ALGOLIA_APP_ID!,
+        apiKey: process.env.ALGOLIA_API_KEY!,
+        productIndexName: process.env.ALGOLIA_PRODUCT_INDEX_NAME!,
+      },
+    },
     {
       resolve: "@medusajs/medusa/payment",
       options: {

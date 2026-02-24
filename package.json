@@ -34,6 +34,7 @@
     "@medusajs/medusa": "2.13.1",
     "@react-email/components": "1.0.8",
     "@rsc-labs/medusa-documents-v2": "^0.2.11",
+    "algoliasearch": "^5.49.0",
     "medusa-plugin-razorpay-v2": "^0.1.4",
     "medusa-variant-images": "^1.1.4",
     "razorpay": "^2.9.6",
