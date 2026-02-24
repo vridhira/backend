@@ -172,9 +172,9 @@ class CodPaymentService extends AbstractPaymentProvider<CodOptions> {
         this.options_ = {
             min_order_amount:    options.min_order_amount    ?? 10000,    // ₹100
             max_order_amount:    options.max_order_amount    ?? 5000000,  // ₹50,000
-            max_daily_orders:    options.max_daily_orders    ?? 3,
-            new_customer_limit:  options.new_customer_limit  ?? 150000,   // ₹1,500
-            otp_threshold:       options.otp_threshold       ?? 300000,   // ₹3,000
+            max_daily_orders:    options.max_daily_orders    ?? 0,        // 0 = no limit
+            new_customer_limit:  options.new_customer_limit  ?? 0,        // 0 = no limit
+            otp_threshold:       options.otp_threshold       ?? 250000,   // ₹2,500
             otp_expiry_minutes:  options.otp_expiry_minutes  ?? 10,
             msg91_auth_key:      options.msg91_auth_key      ?? "",
             msg91_template_id:   options.msg91_template_id   ?? "",

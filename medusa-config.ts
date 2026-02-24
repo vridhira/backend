@@ -161,9 +161,8 @@ module.exports = defineConfig({
             options: {
               min_order_amount: 10000,   // ₹100 in paise
               max_order_amount: 5000000, // ₹50,000 in paise
-              max_daily_orders: 3,
-              new_customer_limit: 150000, // ₹1,500 in paise
-              otp_threshold: 300000,      // ₹3,000 in paise
+              // No daily-order or new-customer limits — all COD orders accepted.
+              otp_threshold: 250000,     // ₹2,500 in paise — OTP required for orders at or above this amount
             },
           },
         ],
