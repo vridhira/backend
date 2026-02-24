@@ -24,3 +24,5 @@ build
 !.yarn/versions
 
 .medusa
+# Runtime search provider config (environment-specific)
+.search-config.json
