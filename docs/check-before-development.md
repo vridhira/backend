@@ -128,9 +128,10 @@ Shiprocket handles order fulfillment, AWB generation, and delivery tracking for 
 (BlueDart, Delhivery, DTDC, Ekart, etc.).
 
 ```env
-SHIPROCKET_EMAIL=your@email.com     ← REPLACE with your Shiprocket login email
-SHIPROCKET_PASSWORD=yourpassword    ← REPLACE with your Shiprocket login password
-SHIPROCKET_PICKUP_LOCATION=Primary  ← REPLACE with your pickup location name
+SHIPROCKET_EMAIL=your@email.com        ← REPLACE with your Shiprocket login email
+SHIPROCKET_PASSWORD=yourpassword       ← REPLACE with your Shiprocket login password
+SHIPROCKET_PICKUP_LOCATION=Primary     ← REPLACE with your pickup location name
+SHIPROCKET_PICKUP_POSTCODE=110001      ← REPLACE with your warehouse/pickup address pincode
 ```
 
 ### Step-by-step setup:
@@ -140,6 +141,7 @@ SHIPROCKET_PICKUP_LOCATION=Primary  ← REPLACE with your pickup location name
 3. Go to **Settings → Manage Pickup Addresses**
 4. Create your warehouse/pickup address
 5. Note the **Pickup Location Name** exactly (e.g. `"Primary"`, `"Warehouse Mumbai"`) and set it as `SHIPROCKET_PICKUP_LOCATION`
+6. Note the **6-digit pincode** of your warehouse and set it as `SHIPROCKET_PICKUP_POSTCODE` — this is used for COD serviceability checks to calculate accurate shipping rates and courier availability for your customers. If not set, the server will default to Delhi (110001) and log a warning.
 
 ### Webhook registration:
 
@@ -149,7 +151,7 @@ SHIPROCKET_PICKUP_LOCATION=Primary  ← REPLACE with your pickup location name
 | Production  | `https://admin.vridhira.in/hooks/shiprocket?token=<SHIPROCKET_WEBHOOK_TOKEN>` |
 
 **To register:** Shiprocket Dashboard → **Settings → Webhooks** → Add webhook URL.
-No secret is required — Shiprocket posts JSON with `current_status`.
+Set the secret token in your `.env` as `SHIPROCKET_WEBHOOK_TOKEN` and append `?token=<SHIPROCKET_WEBHOOK_TOKEN>` to the URL — this is **required**. The server rejects all requests without a matching token.
 
 **What the webhook triggers:**
 - Status `"Shipped"` / `"In Transit"` → sends shipping email to customer with AWB

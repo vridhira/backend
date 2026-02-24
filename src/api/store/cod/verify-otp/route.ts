@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { Modules } from "@medusajs/framework/utils"
+import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import CodPaymentService from "../../../../modules/cod-payment/service"
 
 /**
@@ -72,6 +72,42 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
             })
         }
 
+        // ── 2.5. Customer ownership check ─────────────────────────────────
+        // Ensure the payment session belongs to the authenticated customer's cart.
+        // Without this, any logged-in customer who obtains another customer's
+        // payment_session_id (e.g. via URL sharing or IDOR) could lock out that
+        // session by exhausting OTP attempts, or verify a session they don't own.
+        const customerId = (req as any).auth_context?.actor_id as string | undefined
+        if (!customerId) {
+            return res.status(401).json({ error: "Authentication required" })
+        }
+        {
+            const queryClient = req.scope.resolve(ContainerRegistrationKeys.QUERY) as any
+            const pcId = paymentSession.payment_collection_id as string | undefined
+            if (pcId) {
+                const { data: collections } = await queryClient.graph({
+                    entity: "payment_collection",
+                    fields: ["id", "cart_id"],
+                    filters: { id: pcId },
+                })
+                const collection = (collections as any[])?.[0]
+                const cartId = collection?.cart_id as string | undefined
+                if (cartId) {
+                    const { data: carts } = await queryClient.graph({
+                        entity: "cart",
+                        fields: ["id", "customer_id"],
+                        filters: { id: cartId },
+                    })
+                    const cart = (carts as any[])?.[0]
+                    if (!cart || cart.customer_id !== customerId) {
+                        console.warn(`[COD OTP] Ownership check failed — session ${payment_session_id} cart belongs to ${cart?.customer_id ?? "unknown"}, not ${customerId}`)
+                        return res.status(403).json({ error: "You do not have permission to verify this payment session" })
+                    }
+                }
+            }
+        }
+        // ── End ownership check ───────────────────────────────────────────
+
         const sessionData = (paymentSession.data ?? {}) as Record<string, unknown>
 
         // ── 3. Brute-force lockout check ──────────────────────────────────
@@ -104,15 +140,14 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
             const newAttempts = attempts + 1
             const lockedData = { ...sessionData, otp_attempts: newAttempts }
 
-            try {
-                await paymentModule.updatePaymentSession({
-                    id: payment_session_id,
-                    data: lockedData,
-                })
-            } catch (persistErr) {
-                // Best-effort — log but don't mask the original error
-                console.error("[COD OTP] Failed to persist attempt count:", (persistErr as Error).message)
-            }
+            // Persist the attempt counter — do NOT swallow errors here.
+            // If we can't write the counter to the DB, we cannot guarantee that
+            // brute-force protection is active; returning a 500 is safer than
+            // reporting a wrong-OTP response with an untracked attempt.
+            await paymentModule.updatePaymentSession({
+                id: payment_session_id,
+                data: lockedData,
+            })
 
             const remaining = MAX_OTP_ATTEMPTS - newAttempts
             const isMedusaError = verifyError?.name === "MedusaError" || verifyError?.type

@@ -109,13 +109,15 @@ async function sendOtpViaMSG91(
  *   - MSG91 OTP verification for orders >= ₹3,000               ← enforced in initiatePayment + verifyOtp
  * - OTP reset on cart amount increase                         ← enforced in updatePayment
  *
- * NOTE — The following options are stored in `options_` for future use but are NOT
- * currently enforced at the payment-provider level because AbstractPaymentProvider's
- * `initiatePayment` receives no customer history. Enforce these in a custom
- * store API route (before calling /store/payment-sessions) if required:
+ * ⚠️  KNOWN LIMITATION — The following options are stored in `options_` for future use
+ * but are NOT currently enforced at the payment-provider level because
+ * AbstractPaymentProvider's `initiatePayment` receives no customer history context.
+ * Until enforced, these settings exist in config but have NO runtime effect on fraud prevention.
+ * To enforce them, add a custom store API route (called BEFORE /store/payment-sessions)
+ * that queries the customer's order history and rejects the session if limits are exceeded:
  *
  *   max_daily_orders    — requires querying past orders for this customer today
- *   new_customer_limit  — requires checking if this is the customer's first order
+ *   new_customer_limit  — requires checking if this is the customer's first ever order
  *
  * OTP Flow:
  *  1. initiatePayment() — if amount >= otp_threshold:

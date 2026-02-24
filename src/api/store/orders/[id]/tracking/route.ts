@@ -59,12 +59,24 @@ export async function GET(
         // any AWB (e.g. from a package they intercepted) and proxy a Shiprocket
         // tracking call for an unrelated shipment.
         const storedAwb = order.metadata?.shiprocket_awb as string | undefined
-        if (storedAwb && storedAwb !== awb) {
+        if (!storedAwb) {
+            // Order not yet fulfilled — return a graceful response WITHOUT proxying
+            // to Shiprocket with the caller-supplied AWB.
+            // Allowing the proxy when storedAwb is undefined would let any
+            // authenticated customer track any package in Shiprocket's system
+            // simply by supplying an arbitrary AWB belonging to an unrelated shipment.
+            return res.status(200).json({
+                success: true,
+                order_id: id,
+                awb: null,
+                current_status: "not_yet_shipped",
+                message: "Your order has not been shipped yet.",
+            })
+        }
+        if (storedAwb !== awb) {
             // The AWB doesn't match this order — return 404 (avoid AWB enumeration)
             return res.status(404).json({ success: false, message: "Order not found" })
         }
-        // If no AWB is stored yet (fulfillment pending), allow the call through so
-        // the storefront can surface "not yet shipped" gracefully.
         // ── End AWB ownership check ───────────────────────────────────────────
 
         const shiprocketService = req.scope.resolve<ShiprocketService>("shiprocketService")

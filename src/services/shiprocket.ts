@@ -167,8 +167,16 @@ class ShiprocketService {
     ): Promise<ServiceabilityResponse["data"]> {
         const headers = await this.getHeaders()
 
+        const pickupPostcode = process.env.SHIPROCKET_PICKUP_POSTCODE
+        if (!pickupPostcode) {
+            console.warn(
+                "[Shiprocket] SHIPROCKET_PICKUP_POSTCODE is not set — serviceability checks will use Delhi (110001) as the pickup postcode." +
+                " This will return incorrect rates for merchants outside Delhi. Set SHIPROCKET_PICKUP_POSTCODE to your warehouse pincode."
+            )
+        }
+
         const params = new URLSearchParams({
-            pickup_postcode: process.env.SHIPROCKET_PICKUP_POSTCODE || "110001",
+            pickup_postcode: pickupPostcode ?? "110001",
             delivery_postcode: pincode,
             weight: weight.toString(),
             cod: cod ? "1" : "0",
