@@ -18060,6 +18060,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"meilisearch@npm:^0.55.0":
+  version: 0.55.0
+  resolution: "meilisearch@npm:0.55.0"
+  checksum: 10c0/6d4534a65e180ce965855ef4f7604fa88c26ab579449e2a379790e1510cb1cce3006de4f94cc6dbb17948c9ea9bec34d5a6c6193b867f7ed3a1f3b7bac7dd9ea
+  languageName: node
+  linkType: hard
+
 "merge-descriptors@npm:1.0.3":
   version: 1.0.3
   resolution: "merge-descriptors@npm:1.0.3"
@@ -22626,6 +22633,7 @@ __metadata:
     jest: "npm:^29.7.0"
     medusa-plugin-razorpay-v2: "npm:^0.1.4"
     medusa-variant-images: "npm:^1.1.4"
+    meilisearch: "npm:^0.55.0"
     prop-types: "npm:^15.8.1"
     razorpay: "npm:^2.9.6"
     react: "npm:^18.3.1"

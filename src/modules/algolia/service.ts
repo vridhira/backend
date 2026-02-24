@@ -1,4 +1,5 @@
 import { algoliasearch, SearchClient } from "algoliasearch"
+import { MedusaError } from "@medusajs/framework/utils"
 
 type AlgoliaOptions = {
   apiKey: string
@@ -9,12 +10,31 @@ type AlgoliaOptions = {
 export type AlgoliaIndexType = "product"
 
 export default class AlgoliaModuleService {
-  private client: SearchClient
+  private client: SearchClient | null = null
   private options: AlgoliaOptions
 
-  constructor({}, options: AlgoliaOptions) {
-    this.client = algoliasearch(options.appId, options.apiKey)
+  constructor({}: Record<string, unknown>, options: AlgoliaOptions) {
     this.options = options
+
+    if (!options.appId || !options.apiKey || !options.productIndexName) {
+      // Don't crash on startup — module may not be the active provider
+      console.warn(
+        "[AlgoliaModule] Missing appId/apiKey/productIndexName — module loaded but inactive until env vars are set."
+      )
+      return
+    }
+
+    this.client = algoliasearch(options.appId, options.apiKey)
+  }
+
+  private getClient(): SearchClient {
+    if (!this.client) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_ARGUMENT,
+        "Algolia client is not initialized. Set ALGOLIA_APP_ID, ALGOLIA_API_KEY, and ALGOLIA_PRODUCT_INDEX_NAME env vars."
+      )
+    }
+    return this.client
   }
 
   // ── Index name resolution ──────────────────────────────────────────────────
@@ -33,11 +53,10 @@ export default class AlgoliaModuleService {
     type: AlgoliaIndexType = "product"
   ): Promise<void> {
     const indexName = await this.getIndexName(type)
-    await this.client.saveObjects({
+    await this.getClient().saveObjects({
       indexName,
       objects: data.map((item) => ({
         ...item,
-        // objectID lets Algolia overwrite the record on re-indexing
         objectID: item.id as string,
       })),
     })
@@ -51,7 +70,7 @@ export default class AlgoliaModuleService {
     if (!ids.length) return { results: [] }
 
     const indexName = await this.getIndexName(type)
-    const results = await this.client.getObjects({
+    const results = await this.getClient().getObjects({
       requests: ids.map((objectID) => ({ indexName, objectID })),
     })
 
@@ -66,13 +85,13 @@ export default class AlgoliaModuleService {
     if (!ids.length) return
 
     const indexName = await this.getIndexName(type)
-    await this.client.deleteObjects({ indexName, objectIDs: ids })
+    await this.getClient().deleteObjects({ indexName, objectIDs: ids })
   }
 
   // ── Storefront search ─────────────────────────────────────────────────────
   async searchProducts(query: string): Promise<Record<string, unknown>[]> {
     const indexName = await this.getIndexName("product")
-    const { hits } = await this.client.searchSingleIndex({
+    const { hits } = await this.getClient().searchSingleIndex({
       indexName,
       searchParams: { query },
     })

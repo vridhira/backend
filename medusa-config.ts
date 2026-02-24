@@ -112,7 +112,7 @@ module.exports = defineConfig({
 
     // ── Custom: Algolia Search Module ────────────────────────────────────────
     // Indexes products in Algolia on create/update/delete events.
-    // Trigger a full reindex from: Admin → Algolia Search → Sync All Products
+    // Provider selection managed via Admin → Search Engine.
     // Get credentials: https://dashboard.algolia.com/account/api-keys
     {
       resolve: "./src/modules/algolia",
@@ -120,6 +120,20 @@ module.exports = defineConfig({
         appId: process.env.ALGOLIA_APP_ID!,
         apiKey: process.env.ALGOLIA_API_KEY!,
         productIndexName: process.env.ALGOLIA_PRODUCT_INDEX_NAME!,
+      },
+    },
+
+    // ── Custom: Meilisearch Search Module ─────────────────────────────────────
+    // Indexes products in Meilisearch on create/update/delete events.
+    // Provider selection managed via Admin → Search Engine.
+    // Self-hosted: https://www.meilisearch.com/docs/learn/getting_started/quick_start
+    // Cloud: https://cloud.meilisearch.com
+    {
+      resolve: "./src/modules/meilisearch",
+      options: {
+        host: process.env.MEILISEARCH_HOST!,
+        apiKey: process.env.MEILISEARCH_API_KEY!,
+        productIndexName: process.env.MEILISEARCH_PRODUCT_INDEX_NAME!,
       },
     },
     {

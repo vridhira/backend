@@ -1,21 +1,30 @@
 /**
- * Subscriber: product.created, product.updated → syncProductsWorkflow
+ * Subscriber: product.created, product.updated
  *
- * Triggered whenever a product is created or updated in Medusa admin.
- * The product's ID is passed as a filter so only that product is re-indexed.
+ * Routes the sync to whichever search provider is currently active
+ * (set via Admin → Search → Provider tab).
  */
 import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
 import { syncProductsWorkflow } from "../workflows/sync-products"
+import { syncProductsMeilisearchWorkflow } from "../workflows/sync-products-meilisearch"
+import { getActiveProvider } from "../lib/search-config"
 
 export default async function handleProductEvents({
   event: { data },
   container,
 }: SubscriberArgs<{ id: string }>) {
-  await syncProductsWorkflow(container).run({
-    input: {
-      filters: { id: data.id },
-    },
-  })
+  const provider = getActiveProvider()
+
+  if (provider === "algolia") {
+    await syncProductsWorkflow(container).run({
+      input: { filters: { id: data.id } },
+    })
+  } else if (provider === "meilisearch") {
+    await syncProductsMeilisearchWorkflow(container).run({
+      input: { filters: { id: data.id } },
+    })
+  }
+  // "default" — no external indexing needed
 }
 
 export const config: SubscriberConfig = {

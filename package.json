@@ -37,6 +37,7 @@
     "algoliasearch": "^5.49.0",
     "medusa-plugin-razorpay-v2": "^0.1.4",
     "medusa-variant-images": "^1.1.4",
+    "meilisearch": "^0.55.0",
     "razorpay": "^2.9.6",
     "resend": "6.9.2"
   },
