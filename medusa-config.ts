@@ -149,6 +149,17 @@ module.exports = defineConfig({
     // Provider selection managed via Admin → Search Engine.
     // Self-hosted: https://www.meilisearch.com/docs/learn/getting_started/quick_start
     // Cloud: https://cloud.meilisearch.com
+    //
+    // SECURITY (BUG-001): MEILISEARCH_API_KEY MUST be a scoped key — NOT the master key.
+    // Required permissions: documents.add, documents.get, documents.delete,
+    //                       indexes.search, indexes.update
+    // Restricted to: the products index only.
+    //
+    // To create the scoped key (one-time setup):
+    //   1. Add MEILISEARCH_MASTER_KEY=<your-master-key> to .env temporarily
+    //   2. Run: yarn medusa exec ./src/scripts/create-meilisearch-scoped-key.ts
+    //   3. Copy the printed key → MEILISEARCH_API_KEY in .env
+    //   4. Remove MEILISEARCH_MASTER_KEY from .env
     {
       resolve: "./src/modules/meilisearch",
       options: {

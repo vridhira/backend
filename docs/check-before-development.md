@@ -1279,17 +1279,21 @@ Meilisearch is an open-source, self-hosted (or cloud) search engine alternative 
 Both Algolia and Meilisearch modules are registered simultaneously — only the active
 provider is called.
 
+> **⚠️ Security — BUG-001 (Critical):** `MEILISEARCH_API_KEY` must be a **scoped key**,
+> not the master key. A master key grants full Meilisearch control — index deletion, API key
+> creation, everything. The backend only needs to add/get/delete documents and run searches.
+> Follow the **"Create scoped key"** steps below before first use.
+
 ### Required env vars (backend)
 
 ```dotenv
 # ── Meilisearch ─────────────────────────────────────────────────────────────
-# Self-hosted: https://www.meilisearch.com/docs/learn/getting_started/installation
-# Cloud: https://cloud.meilisearch.com
-# Use the Master Key (full access) for MEILISEARCH_API_KEY (backend only).
-
 MEILISEARCH_HOST=http://localhost:7700
-MEILISEARCH_API_KEY=your-meilisearch-master-key
+# ⚠️  Must be a SCOPED key — see setup steps below. NOT the master key.
+MEILISEARCH_API_KEY=your-meilisearch-scoped-key
 MEILISEARCH_PRODUCT_INDEX_NAME=products
+# Only needed while running the create-meilisearch-scoped-key.ts script (remove after)
+# MEILISEARCH_MASTER_KEY=your-master-key
 ```
 
 ### Run Meilisearch locally (Docker)
@@ -1303,11 +1307,60 @@ docker run -it --rm -p 7700:7700 \
 
 Dashboard available at `http://localhost:7700`.
 
+### ⚠️ Create scoped key (required — BUG-001 fix)
+
+Do this **once per environment** (dev and prod separately) before starting the server:
+
+**Step 1 — Start Meilisearch** (needs to be running for the script to reach it)
+
+**Step 2 — Add master key to `.env` temporarily:**
+```dotenv
+MEILISEARCH_MASTER_KEY=your-master-key-here
+```
+
+**Step 3 — Run the setup script:**
+```bash
+yarn medusa exec ./src/scripts/create-meilisearch-scoped-key.ts
+```
+
+Output will look like:
+```
+✅  Scoped API key created successfully!
+────────────────────────────────────────────────────
+Key UID:  abc123
+Key:      3f9a...long-key-string...
+────────────────────────────────────────────────────
+```
+
+**Step 4 — Update `.env`:**
+```dotenv
+MEILISEARCH_API_KEY=<paste the printed Key value here>
+# MEILISEARCH_MASTER_KEY=   ← comment out or delete
+```
+
+**Step 5 — Restart the backend.** The startup guard in `meilisearch/service.ts` will
+confirm the key is correctly scoped — if you still have a master key configured,
+it will print `⚠️ SECURITY: MEILISEARCH_API_KEY is a master or admin key` in dev,
+and **refuse to start** in production.
+
+**Permissions granted to the scoped key:**
+
+| Action | Allowed |
+|--------|---------|
+| Add / update products | ✅ |
+| Get documents by ID | ✅ |
+| Delete products | ✅ |
+| Search queries | ✅ |
+| Update index settings | ✅ |
+| Delete the index | ❌ |
+| List / create API keys | ❌ |
+| Access Meilisearch admin | ❌ |
+
 ### Activate Meilisearch
 
 1. Start a Meilisearch instance (Docker locally or <https://cloud.meilisearch.com> in prod)
-2. Copy the host URL and master key
-3. Set the three env vars above and restart the backend
+2. Create the scoped key using the steps above
+3. Set `MEILISEARCH_API_KEY`, `MEILISEARCH_HOST`, `MEILISEARCH_PRODUCT_INDEX_NAME` and restart the backend
 4. Admin → **Search Engine → Provider** → select **Meilisearch** → "Set as Active"
 5. Click **Sync Now** — all products are reindexed automatically in the background
 
@@ -1343,8 +1396,12 @@ are unavailable or during initial setup.
 
 ### Production checklist — Search
 
+- [ ] Run `yarn medusa exec ./src/scripts/create-meilisearch-scoped-key.ts` with master key to create scoped key
+- [ ] Set `MEILISEARCH_API_KEY` to the **scoped key** (never the master key)
+- [ ] Remove `MEILISEARCH_MASTER_KEY` from `.env` after running the script
+- [ ] Verify server starts without the `⚠️ SECURITY: MEILISEARCH_API_KEY is a master or admin key` warning
 - [ ] Decide on provider: Algolia (hosted, zero-ops) vs Meilisearch (self-hosted, cheaper)
-- [ ] Set the three provider env vars in the production `.env`
+- [ ] Set all three provider env vars in the production `.env`
 - [ ] Restart the backend after setting env vars
 - [ ] Select + activate the provider from Admin → Search Engine → Provider tab
 - [ ] Click Sync Now to build the initial index

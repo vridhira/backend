@@ -65,10 +65,40 @@ export default class MeilisearchModuleService {
   private async createClient(): Promise<MeiliClient> {
     // Dynamic import avoids the CJS/ESM conflict (meilisearch >=0.38 is ESM-only)
     const { Meilisearch } = await import("meilisearch")
-    return new Meilisearch({
+    const client = new Meilisearch({
       host: this.options.host,
       apiKey: this.options.apiKey,
-    }) as unknown as MeiliClient
+    })
+
+    // ── BUG-001 guard: detect master / admin key at startup ──────────────────
+    // A properly-scoped key cannot list API keys (requires master or admin key).
+    // If getKeys() succeeds, the configured MEILISEARCH_API_KEY is over-privileged
+    // and grants full Meilisearch control (index deletion, key creation, etc.).
+    //
+    // Fix: run `yarn medusa exec ./src/scripts/create-meilisearch-scoped-key.ts`
+    // to create a key scoped to: documents.add/get/delete, indexes.search/update
+    // on the products index only. Then update MEILISEARCH_API_KEY in .env.
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (client as any).getKeys()
+      // If we reach here, getKeys() succeeded — key is master or admin level
+      const msg =
+        "[MeilisearchModule] SECURITY: MEILISEARCH_API_KEY is a master or admin key. " +
+        "This grants full Meilisearch control (index deletion, key creation). " +
+        "Create a scoped key with documents.add/get/delete + indexes.search/update " +
+        "permissions restricted to the products index only. " +
+        "Run: yarn medusa exec ./src/scripts/create-meilisearch-scoped-key.ts"
+
+      if (process.env.NODE_ENV === "production") {
+        throw new MedusaError(MedusaError.Types.INVALID_ARGUMENT, msg)
+      }
+      console.warn(`\n⚠️  ${msg}\n`)
+    } catch (err) {
+      if (err instanceof MedusaError) throw err
+      // Expected happy path: Meilisearch responds 403 to scoped keys → key is properly restricted
+    }
+
+    return client as unknown as MeiliClient
   }
 
   private async getClient(): Promise<MeiliClient> {
