@@ -33,8 +33,27 @@ tsconfig.tsbuildinfo
 
 # TypeScript diagnostic exports — generated manually for debugging, not source
 tsc-errors.txt
-tsc-out.txt
+tsc-out.txttsc-out-new.txt
 
+# ── Internal dev / audit docs — not needed in production or public repo ───────
+# These contain internal security analysis, bug tracking, and build notes.
+# Production deployments should not expose vulnerability data or internal docs.
+BUGS.md
+SECURITY_ANALYSIS.md
+security-audit.md
+.eslintrc-security.js
+.secretlintrc*
+.secretlintignore
+
+# Internal documentation and build logs
+docs/
+build-log-*.md
+check-before-development.md
+walkthrough.md
+context-*.md
+
+# CI security scan output directory
+.security/
 # ── Medusa-specific ───────────────────────────────────────────────────────────
 uploads/
 medusa-db.sql

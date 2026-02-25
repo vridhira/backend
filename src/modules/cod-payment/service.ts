@@ -30,6 +30,13 @@ import {
 /** Shared constant — imported by POST /store/cod/verify-otp so both layers lockout at the same threshold */
 export const MAX_OTP_ATTEMPTS = 5
 
+// ── In-memory OTP rate limit fallback ─────────────────────────────────────────
+// Used ONLY when Redis is unavailable (BUG-006 fix).
+// Maps phone → timestamp when the lock expires (Unix ms).
+// Map entries are cleaned up on each check to avoid a memory leak in long-running processes.
+// Single-process safety only — does not cover multi-instance deployments.
+const inMemoryOtpRateLimit = new Map<string, number>()
+
 export type CodOptions = {
     min_order_amount?: number    // in paise, default ₹100
     max_order_amount?: number    // in paise, default ₹50,000
@@ -356,7 +363,8 @@ class CodPaymentService extends AbstractPaymentProvider<CodOptions> {
 
         // ── Redis OTP send rate limit ─────────────────────────────────────
         // Prevents SMS bombing: at most 1 OTP SMS per phone number per 60 seconds.
-        // Fail open on Redis errors so a Redis outage never blocks checkout.
+        // Primary: Redis SET NX EX. Fallback: in-memory Map (BUG-006 fix).
+        // Using two layers ensures that a Redis outage never bypasses the rate limit.
         try {
             const redis = getRedisClient()
             const rlKey = `cod:otp:rl:${normalisedPhone}`
@@ -371,8 +379,23 @@ class CodPaymentService extends AbstractPaymentProvider<CodOptions> {
             }
         } catch (rlErr) {
             if (rlErr instanceof MedusaError) throw rlErr
-            // Redis unavailable — log and continue (fail open)
-            log.warn({ err: rlErr }, "Redis OTP rate-limit check unavailable — proceeding without limit")
+            // Redis unavailable — fall back to in-memory rate limit (BUG-006 fix).
+            // This prevents SMS bombing even during a Redis outage.
+            log.warn({ err: rlErr }, "Redis OTP rate-limit unavailable — applying in-memory fallback rate limit")
+            const now = Date.now()
+            const expiry = inMemoryOtpRateLimit.get(normalisedPhone)
+            // Clean up expired entries to prevent unbounded memory growth
+            for (const [k, v] of inMemoryOtpRateLimit) {
+                if (now > v) inMemoryOtpRateLimit.delete(k)
+            }
+            if (expiry !== undefined && now < expiry) {
+                throw new MedusaError(
+                    MedusaError.Types.NOT_ALLOWED,
+                    "An OTP was recently sent to this number. Please wait 60 seconds before requesting a new code."
+                )
+            }
+            // Set the in-memory lock for 60 seconds
+            inMemoryOtpRateLimit.set(normalisedPhone, now + 60_000)
         }
 
         try {

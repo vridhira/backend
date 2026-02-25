@@ -115,7 +115,50 @@ export default async function orderPlacedHandler({
         }
 
     } catch (error) {
-        console.error(`[OrderPlaced] Auto-fulfillment failed for order ${orderId}:`, (error as Error).message)
+        const errorMsg = (error as Error).message
+        console.error(`[OrderPlaced] Auto-fulfillment FAILED for order ${orderId}: ${errorMsg}`)
+
+        // BUG-008 FIX: Mark the order with a metadata flag so admin panel can surface
+        // unfulfilled orders. Also send a structured alert email if ADMIN_EMAIL is set.
+        try {
+            // Resolve order module — already available in container
+            const orderModuleService = container.resolve(Modules.ORDER) as any
+            await orderModuleService.updateOrders([{
+                id: orderId,
+                metadata: {
+                    fulfillment_failed: true,
+                    fulfillment_failed_at: new Date().toISOString(),
+                    fulfillment_error: errorMsg.substring(0, 500),
+                },
+            }])
+            console.warn(`[OrderPlaced] Marked order ${orderId} as fulfillment_failed in metadata`)
+        } catch (metaErr) {
+            console.error(`[OrderPlaced] Could not update order metadata for ${orderId}:`, (metaErr as Error).message)
+        }
+
+        // Send admin alert email via Resend if configured
+        const adminEmail = process.env.ADMIN_ALERT_EMAIL
+        const resendKey  = process.env.RESEND_API_KEY
+        if (adminEmail && resendKey) {
+            try {
+                await fetch("https://api.resend.com/emails", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${resendKey}`,
+                    },
+                    body: JSON.stringify({
+                        from: process.env.RESEND_FROM_EMAIL ?? "no-reply@vridhira.in",
+                        to: adminEmail,
+                        subject: `⚠️ Fulfillment Failed — Order #${orderId}`,
+                        html: `<p><strong>Shiprocket auto-fulfillment failed</strong> for order <code>${orderId}</code>.</p><p>Error: <code>${errorMsg}</code></p><p>Please create the shipment manually in the Shiprocket dashboard.</p>`,
+                    }),
+                })
+                console.log(`[OrderPlaced] Admin alert sent to ${adminEmail} for order ${orderId}`)
+            } catch (alertErr) {
+                console.error(`[OrderPlaced] Could not send admin alert email:`, (alertErr as Error).message)
+            }
+        }
         // We do NOT throw — this prevents blocking other subscribers on the event bus
     }
 }

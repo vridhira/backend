@@ -17,9 +17,29 @@ import { sendOrderOutForDeliveryWorkflow } from "../../../workflows/send-order-o
  * Shiprocket webhook handler — syncs shipment status to Medusa admin panel
  * AND sends customer-facing emails for every status event.
  *
- * Register this URL in: Shiprocket Dashboard → Settings → Webhooks
- *   Dev:  https://<ngrok-url>/hooks/shiprocket?token=<SHIPROCKET_WEBHOOK_TOKEN>
- *   Prod: https://admin.vridhira.in/hooks/shiprocket?token=<SHIPROCKET_WEBHOOK_TOKEN>
+ * ── AUTHENTICATION SETUP (BUG-002 mitigation) ──────────────────────────────
+ * The handler accepts the token via EITHER:
+ *   1. (PREFERRED) Custom request header: `X-Shiprocket-Token: <token>`
+ *      — Tokens in headers are NOT written to Nginx / ALB / Sentry access logs.
+ *   2. (LEGACY) Query parameter: `?token=<token>`
+ *      — Tokens in query strings ARE logged by most reverse proxies — avoid in prod.
+ *
+ * If Shiprocket does not support custom headers in its webhook dashboard,
+ * register the URL WITHOUT the token in the query string and rely on the
+ * X-Shiprocket-Token approach if your proxy allows header injection.
+ *
+ * Nginx interim mitigation (add to nginx.conf to strip the token from logs):
+ *   map $request_uri $request_safe_uri {
+ *     ~^(?P<path>/hooks/shiprocket)[?&]token=[^&]* "$path?token=[REDACTED]";
+ *     default $request_uri;
+ *   }
+ *   log_format safe '$remote_addr - [$time_local] "$request_safe_uri" $status';
+ *   access_log /var/log/nginx/access.log safe;
+ *
+ * Register URL in: Shiprocket Dashboard → Settings → Webhooks
+ *   Dev:  https://<ngrok-url>/hooks/shiprocket  (use X-Shiprocket-Token header)
+ *   Prod: https://admin.vridhira.in/hooks/shiprocket  (use X-Shiprocket-Token header)
+ *   Legacy (if header injection unavailable): append ?token=<SHIPROCKET_WEBHOOK_TOKEN>
  *
  * ┌─────────────────────┬──────────────────────────────┬──────────────────────────────────┐
  * │ Shiprocket status   │ Admin panel effect           │ Customer email                   │
@@ -43,8 +63,8 @@ import { sendOrderOutForDeliveryWorkflow } from "../../../workflows/send-order-o
  *   }
  *
  * Authentication:
- *   Register the webhook URL with a secret token query param.
- *   Set SHIPROCKET_WEBHOOK_TOKEN in your .env and in Shiprocket Dashboard → Settings → Webhooks.
+ *   Set SHIPROCKET_WEBHOOK_TOKEN in your .env.
+ *   Pass the token via the X-Shiprocket-Token header (preferred) or ?token= query param (legacy).
  */
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
     try {

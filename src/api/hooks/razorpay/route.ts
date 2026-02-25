@@ -161,26 +161,38 @@ async function handleRefundProcessed({
         // The time filter removes the need for an arbitrary take cap — any payment
         // eligible for a refund must have been created within the last 180 days.
         const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000)
-        const { data: payments } = await query.graph({
-            entity: "payment",
-            fields: ["id", "payment_collection_id", "data"],
-            filters: {
-                provider_id: "pp_razorpay_razorpay",
-                created_at: { $gte: sixMonthsAgo },
-            } as any,
-            // Cap at 500 — avoids an unbounded full-table scan on high-volume stores.
-            // Razorpay payment IDs are globally unique, so 1 record will always match.
-            // If the store processes >500 Razorpay payments in 6 months (very common),
-            // the JS filter below still finds the right one within this window.
-            pagination: { take: 500 },
-        })
 
-        // Fine-grained JS match on JSONB data — scoped to Razorpay payments only
-        const matchedPayment = payments.find(
-            (p: any) =>
-                p?.data?.id === razorpayPaymentId ||
-                p?.data?.razorpay_payment_id === razorpayPaymentId
-        )
+        // BUG-005 FIX: Cursor-based pagination replaces the old take:500 cap.
+        // A store processing >500 Razorpay payments in 6 months would silently miss
+        // the target payment with a static cap. The loop below scans pages of 100
+        // until the matching payment is found or all pages are exhausted.
+        const PAGE_SIZE = 100
+        let skip = 0
+        let matchedPayment: Record<string, any> | undefined
+
+        while (!matchedPayment) {
+            const { data: payments } = await query.graph({
+                entity: "payment",
+                fields: ["id", "payment_collection_id", "data"],
+                filters: {
+                    provider_id: "pp_razorpay_razorpay",
+                    created_at: { $gte: sixMonthsAgo },
+                } as any,
+                pagination: { take: PAGE_SIZE, skip },
+            })
+
+            if (!payments || payments.length === 0) break
+
+            // Fine-grained JS match on JSONB data — scoped to Razorpay payments only
+            matchedPayment = payments.find(
+                (p: any) =>
+                    p?.data?.id === razorpayPaymentId ||
+                    p?.data?.razorpay_payment_id === razorpayPaymentId
+            )
+
+            if (payments.length < PAGE_SIZE) break   // last page — no more rows
+            skip += PAGE_SIZE
+        }
 
         if (!matchedPayment) {
             console.warn(

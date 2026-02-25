@@ -1,4 +1,5 @@
 import { MedusaError } from "@medusajs/framework/utils"
+import { getRedisClient } from "../lib/redis-client"
 
 type ShiprocketAuthResponse = {
     token: string
@@ -98,21 +99,38 @@ class ShiprocketService {
     static identifier = "shiprocketService"
 
     private baseUrl = "https://apiv2.shiprocket.in/v1/external"
-    // Static so they persist across different instances of the service
-    private static token: string | null = null
-    private static tokenExpiry: Date | null = null
+    // BUG-009 FIX: Token is now cached in Redis instead of static class properties.
+    // This prevents token invalidation races in multi-process / multi-instance deployments.
+    private static readonly REDIS_TOKEN_KEY = "shiprocket:auth:token"
+    private static readonly REDIS_EXPIRY_SECS = 23 * 60 * 60  // 23 hours (token valid for 24h)
+
+    // In-memory fallback for Redis-unavailable scenarios (single-process safety).
+    private static fallbackToken: string | null = null
+    private static fallbackTokenExpiry: Date | null = null
 
     constructor() {
         // plain class — no v1 transactional base needed
     }
 
     /**
-     * Authenticate with Shiprocket and cache the token
+     * Authenticate with Shiprocket and cache the token in Redis.
+     * Falls back to in-memory cache if Redis is unavailable.
      */
     async authenticate(): Promise<string> {
-        // Return cached token if still valid (tokens last ~24h)
-        if (ShiprocketService.token && ShiprocketService.tokenExpiry && new Date() < ShiprocketService.tokenExpiry) {
-            return ShiprocketService.token
+        // 1. Try Redis first (shared across all processes)
+        try {
+            const redis = getRedisClient()
+            const cached = await redis.get(ShiprocketService.REDIS_TOKEN_KEY)
+            if (cached) return cached
+        } catch (redisErr) {
+            // Redis unavailable — try in-memory fallback before re-authenticating
+            if (
+                ShiprocketService.fallbackToken &&
+                ShiprocketService.fallbackTokenExpiry &&
+                new Date() < ShiprocketService.fallbackTokenExpiry
+            ) {
+                return ShiprocketService.fallbackToken
+            }
         }
 
         const email = process.env.SHIPROCKET_EMAIL
@@ -139,11 +157,24 @@ class ShiprocketService {
         }
 
         const data = (await response.json()) as ShiprocketAuthResponse
-        ShiprocketService.token = data.token
-        // Token expires in 24 hours — refresh 1 hour early
-        ShiprocketService.tokenExpiry = new Date(Date.now() + 23 * 60 * 60 * 1000)
+        const token = data.token
 
-        return ShiprocketService.token
+        // 2. Store in Redis (set TTL atomically)
+        try {
+            const redis = getRedisClient()
+            await redis.set(
+                ShiprocketService.REDIS_TOKEN_KEY,
+                token,
+                "EX",
+                ShiprocketService.REDIS_EXPIRY_SECS
+            )
+        } catch (redisErr) {
+            // Redis unavailable — fall back to in-memory cache
+            ShiprocketService.fallbackToken = token
+            ShiprocketService.fallbackTokenExpiry = new Date(Date.now() + ShiprocketService.REDIS_EXPIRY_SECS * 1000)
+        }
+
+        return token
     }
 
     /**
