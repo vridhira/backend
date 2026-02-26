@@ -130,7 +130,15 @@ module.exports = defineConfig({
     {
       resolve: "./src/modules/wishlist",
     },
-
+    // ── Custom: Razorpay Event Queue ────────────────────────────────────
+    // Starts a BullMQ Worker that processes Razorpay webhook payloads asynchronously.
+    // The POST /hooks/razorpay endpoint enqueues events after HMAC verification and
+    // returns 200 immediately. The Worker processes events with 3-attempt retry,
+    // exponential backoff, and per-event idempotency (razorpay:event:{id} Redis key).
+    // Requires: REDIS_URL must be set (same value as Medusa’s own event bus).
+    {
+      resolve: "./src/modules/razorpay-queue",
+    },
     // ── Custom: Algolia Search Module ────────────────────────────────────────
     // Indexes products in Algolia on create/update/delete events.
     // Provider selection managed via Admin → Search Engine.
