@@ -2,6 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { CurrencyDollar } from "@medusajs/icons"
 import { Badge, Button, Container, Heading, Text } from "@medusajs/ui"
 import { useQuery } from "@tanstack/react-query"
+import { useNavigate } from "react-router-dom"
 import {
     HOTKEYS,
     Kbd,
@@ -25,6 +26,7 @@ import { sdk } from "../../lib/sdk"
 
 const RazorpayOverviewPage = () => {
     useRazorpayHotkeys()
+    const navigate = useNavigate()
     // Fetch today's snapshot — lightweight, cached 5 min
     const { data, isLoading } = useQuery<PaymentsResponse>({
         queryKey: ["rzp-overview-today"],
@@ -138,7 +140,7 @@ const RazorpayOverviewPage = () => {
                 {childPages.map(item => (
                     <button
                         key={item.label}
-                        onClick={() => (window.location.href = item.href)}
+                        onClick={() => navigate(item.href)}
                         className="border border-ui-border-base rounded-lg p-5 bg-ui-bg-subtle text-left hover:bg-ui-bg-subtle-hover transition-colors flex flex-col gap-2"
                     >
                         <div className="flex items-center gap-2">

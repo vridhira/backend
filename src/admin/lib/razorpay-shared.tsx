@@ -13,6 +13,7 @@ import {
 } from "@medusajs/ui"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { sdk } from "./sdk"
 
 // Re-export Kbd so pages only need one import source
@@ -50,6 +51,7 @@ export const HOTKEYS = {
  * or contenteditable element so shortcuts never interfere with typing.
  */
 export function useRazorpayHotkeys() {
+    const navigate = useNavigate()
     useEffect(() => {
         // Stage 1: G was pressed
         let gActive = false
@@ -66,9 +68,9 @@ export function useRazorpayHotkeys() {
             if (gzTimer) { clearTimeout(gzTimer); gzTimer = null }
         }
 
-        const navigate = (dest: string) => {
+        const goTo = (dest: string) => {
             clearAll()
-            window.location.href = dest
+            navigate(dest)
         }
 
         const handler = (e: KeyboardEvent) => {
@@ -100,7 +102,7 @@ export function useRazorpayHotkeys() {
                 // After 600 ms with no digit, treat G Z as "go to overview"
                 gzTimer = setTimeout(() => {
                     gzActive = false
-                    window.location.href = HOTKEYS.overview.path
+                    navigate(HOTKEYS.overview.path)
                 }, 600)
                 return
             }
@@ -116,7 +118,7 @@ export function useRazorpayHotkeys() {
 
                 if (child) {
                     e.preventDefault()
-                    navigate(child)
+                    goTo(child)
                     return
                 }
 
