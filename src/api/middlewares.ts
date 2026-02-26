@@ -1,6 +1,6 @@
 import { defineMiddlewares, authenticate } from "@medusajs/framework/http"
 import type { MedusaRequest, MedusaResponse, MedusaNextFunction } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import logger from "../lib/logger"
 import { getRedisClient } from "../lib/redis-client"
 
@@ -332,6 +332,44 @@ async function requireVerifiedPurchase(
  * @see https://docs.medusajs.com/learn/fundamentals/api-routes/protected-routes
  */
 export default defineMiddlewares({
+  // ── Global Error Handler ──────────────────────────────────────────────────
+  // Overrides Medusa's default error handler for ALL API routes (store + admin).
+  // Rules:
+  //   MedusaError → send the typed message (already user-safe, Medusa-typed)
+  //   Any other Error → log full stack internally, send a sanitized generic message
+  // This prevents raw third-party errors (Shiprocket, MSG91, DB driver) from
+  // leaking internal stack traces, table names, or API details to clients.
+  // Docs: https://docs.medusajs.com/learn/fundamentals/api-routes/errors#override-error-handler
+  errorHandler: (
+    err: MedusaError | (Error & { type?: string; status?: number }),
+    req: MedusaRequest,
+    res: MedusaResponse,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _next: MedusaNextFunction
+  ) => {
+    const isMedusaError =
+      (err as any).name === "MedusaError" ||
+      typeof (err as any).type === "string"
+
+    if (isMedusaError) {
+      // MedusaErrors map to typed HTTP status codes.
+      // Fall back to 400 if no status is set (client-caused errors).
+      const status = (err as any).status ?? 400
+      res.status(status).json({ type: (err as any).type, message: err.message })
+      return
+    }
+
+    // Non-MedusaError: log full detail server-side, send sanitized message to client.
+    log.error(
+      { err, path: req.path, method: req.method },
+      "Unhandled non-Medusa error escaped route handler"
+    )
+    res.status(500).json({
+      type: "INTERNAL_ERROR",
+      message: "An unexpected error occurred. Please try again or contact support.",
+    })
+  },
+
   routes: [
     // ── Global body size guard (BUG-012 fix) ─────────────────────────────────
     // Rejects oversized requests before business logic runs.
@@ -387,6 +425,32 @@ export default defineMiddlewares({
     {
       matcher: "/store/cod/verify-otp*",
       middlewares: [authenticate("customer", ["session", "bearer"]), otpVerifyRateLimiter],
+    },
+
+    // ── COD fraud eligibility, risk check & admin-queued notifications ───────
+    // GET /store/cod/eligibility          — COD block/warning status for checkout
+    // GET /store/cod/cancellation-risk/:id — pre-cancellation risk assessment
+    // GET /store/cod/notifications        — admin-queued toast messages (read+clear)
+    // All require a logged-in customer; handlers enforce resource ownership.
+    {
+      matcher: "/store/cod/eligibility*",
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
+    {
+      matcher: "/store/cod/cancellation-risk*",
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
+    {
+      matcher: "/store/cod/notifications*",
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
+
+    // ── Customer order cancellation ──────────────────────────────────────────
+    // POST /store/orders/:id/cancel — stamps cancelled_by=customer so the
+    // cod-fraud-tracker applies strike only for customer-initiated cancellations.
+    {
+      matcher: "/store/orders/*/cancel*",
+      middlewares: [authenticate("customer", ["session", "bearer"])],
     },
 
     // ── Order tracking ───────────────────────────────────────────────────────

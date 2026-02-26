@@ -1,7 +1,8 @@
 import crypto from "crypto"
-import { AbstractPaymentProvider, MedusaError } from "@medusajs/framework/utils"
+import { AbstractPaymentProvider, MedusaError, Modules } from "@medusajs/framework/utils"
 import logger from "../../lib/logger"
 import { getRedisClient } from "../../lib/redis-client"
+import { readCodMeta, codBlockedMessage } from "../../lib/util/cod-fraud"
 
 const log = logger.child({ module: "cod-payment" })
 import {
@@ -180,9 +181,11 @@ class CodPaymentService extends AbstractPaymentProvider<CodOptions> {
     static identifier = "cod"
 
     protected options_: Required<CodOptions>
+    protected container_: Record<string, unknown>
 
     constructor(container: Record<string, unknown>, options: CodOptions = {}) {
         super(container, options)
+        this.container_ = container
         this.options_ = {
             min_order_amount:    options.min_order_amount    ?? 10000,    // ₹100
             max_order_amount:    options.max_order_amount    ?? 5000000,  // ₹50,000
@@ -306,6 +309,25 @@ class CodPaymentService extends AbstractPaymentProvider<CodOptions> {
      */
     async initiatePayment(input: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
         const { amount, currency_code, context } = input
+
+        // ── COD Fraud Block Check ──────────────────────────────────────────
+        const customerId = (context as any)?.customer?.id as string | undefined
+        if (customerId) {
+            try {
+                const customerModule = (this.container_ as any).resolve(Modules.CUSTOMER)
+                const customer = await customerModule.retrieveCustomer(customerId, { select: ["id", "metadata"] })
+                const meta = readCodMeta(customer?.metadata)
+                if (meta.cod_blocked) {
+                    throw new MedusaError(
+                        MedusaError.Types.NOT_ALLOWED,
+                        codBlockedMessage(meta.cod_online_orders_needed)
+                    )
+                }
+            } catch (err) {
+                if (err instanceof MedusaError) throw err
+                log.warn({ err, customerId }, "COD block check failed — proceeding")
+            }
+        }
 
         // Validate currency — COD only for INR
         if (currency_code?.toUpperCase() !== "INR") {
