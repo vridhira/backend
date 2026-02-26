@@ -5,8 +5,6 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 // ── Production secret guard ────────────────────────────────────────────────
 // Fail loudly if the server is started in production with default secrets.
-// Default secrets expose auth tokens, session cookies, and email verification
-// tokens to trivial forgery attacks.
 if (process.env.NODE_ENV === 'production') {
     const INSECURE_DEFAULTS = ['supersecret', 'secret', 'changeme', 'change_me', '']
     if (INSECURE_DEFAULTS.includes(process.env.JWT_SECRET ?? 'supersecret')) {
@@ -27,6 +25,19 @@ if (process.env.NODE_ENV === 'production') {
         '[SECURITY WARNING] JWT_SECRET is not set — using insecure default. '
         + 'This is acceptable in development but MUST be changed before going to production.'
     )
+}
+
+// ── Load Balancer Security Check (Added) ─────────────────────────────────────
+// Warn if running in production without trusting the upstream proxy.
+// Without this, rate limiters (auth/OTP) will see the Load Balancer's IP
+// instead of the real user IP, potentially banning EVERYONE at once.
+if (process.env.NODE_ENV === 'production' && process.env.TRUST_PROXY !== 'true' && !process.env.TRUSTED_PROXY_IPS) {
+  console.warn(
+    '\x1b[33m%s\x1b[0m', // Yellow color for visibility
+    '[SECURITY WARNING] TRUST_PROXY is not enabled in production. ' +
+    'If you are behind a Load Balancer (Railway/Vercel/AWS), rate limits will ban the router IP, ' +
+    'blocking ALL users. Set TRUST_PROXY="true" in your .env immediately.'
+  )
 }
 
 module.exports = defineConfig({
