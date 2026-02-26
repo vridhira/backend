@@ -13,6 +13,7 @@ import {
 } from "@medusajs/types"
 import ShiprocketService from "../../services/shiprocket"
 import { resolveShipmentDimensions } from "../../lib/util/shiprocket"
+import { retryWithBackoff } from "../../lib/util/retry"
 
 /**
  * Maps Medusa ISO 3166-1 alpha-2 country codes → Shiprocket full country name.
@@ -249,14 +250,22 @@ class ShiprocketFulfillmentService extends AbstractFulfillmentProviderService {
             payload.payment_method = "COD"
         }
 
-        // Call Shiprocket API — three sequential steps required to produce a trackable shipment:
-        //   Step 1: createOrder   → books the shipment, returns shipment_id
-        //   Step 2: generateAWB   → assigns a courier + issues the Air Waybill number
-        //   Step 3: schedulePickup → requests the courier to collect from the pickup address
+        // Call Shiprocket API with in-process retry (3 attempts, exponential backoff: 2s, 4s, 8s).
+        // Transient Shiprocket 5xx errors and expired auth tokens (auto-refreshed by getHeaders)
+        // are handled transparently by the retry loop.
         try {
-            const orderResult = await this.shiprocketService_.createOrder(payload)
-            const awbResult = await this.shiprocketService_.generateAWB(orderResult.shipment_id)
-            await this.shiprocketService_.schedulePickup([orderResult.shipment_id])
+            const orderResult = await retryWithBackoff(
+                () => this.shiprocketService_.createOrder(payload),
+                { attempts: 3, baseDelayMs: 2000, factor: 2 }
+            )
+            const awbResult = await retryWithBackoff(
+                () => this.shiprocketService_.generateAWB(orderResult.shipment_id),
+                { attempts: 3, baseDelayMs: 2000, factor: 2 }
+            )
+            await retryWithBackoff(
+                () => this.shiprocketService_.schedulePickup([orderResult.shipment_id]),
+                { attempts: 3, baseDelayMs: 2000, factor: 2 }
+            )
 
             return {
                 data: {

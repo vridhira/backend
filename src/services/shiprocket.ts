@@ -283,10 +283,21 @@ class ShiprocketService {
         }
 
         const data = await response.json()
-        return {
-            awb_code: data.response?.data?.awb_code,
-            courier_name: data.response?.data?.courier_name,
+        const awbCode     = data.response?.data?.awb_code     as string | undefined
+        const courierName = data.response?.data?.courier_name as string | undefined
+
+        // Guard against a 200 response with unexpected JSON shape.
+        // Without this, awb_code would silently be undefined, creating a fulfillment
+        // record with no tracking number and no error surfaced to the admin.
+        if (!awbCode) {
+            throw new MedusaError(
+                MedusaError.Types.UNEXPECTED_STATE,
+                `Shiprocket returned 200 but AWB code is missing from response. ` +
+                `Raw: ${JSON.stringify(data?.response ?? data).substring(0, 300)}`
+            )
         }
+
+        return { awb_code: awbCode, courier_name: courierName ?? "" }
     }
 
     /**

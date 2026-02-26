@@ -1,30 +1,39 @@
 /**
  * Subscriber: product.created, product.updated
  *
- * Routes the sync to whichever search provider is currently active
- * (set via Admin → Search → Provider tab).
+ * Buffers updated product IDs into a Redis set instead of calling the sync workflow
+ * directly. The flush-search-buffer.ts scheduled job (every 30s) drains the set and
+ * calls the workflow ONCE for all pending IDs as a batch.
+ *
+ * Benefits over the previous per-event direct-call approach:
+ *   - 100 rapid product updates trigger 1 sync API call instead of 100
+ *   - Subscriber returns immediately; no workflow latency blocks the event bus
+ *   - A sync API failure retries the whole batch, not just one product
  */
 import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
-import { syncProductsWorkflow } from "../workflows/sync-products"
-import { syncProductsMeilisearchWorkflow } from "../workflows/sync-products-meilisearch"
 import { getActiveProvider } from "../lib/search-config"
+import { getRedisClient } from "../lib/redis-client"
+import { SEARCH_BUFFER_KEY } from "../jobs/flush-search-buffer"
+import logger from "../lib/logger"
+
+const log = logger.child({ module: "product-sync-subscriber" })
 
 export default async function handleProductEvents({
   event: { data },
-  container,
 }: SubscriberArgs<{ id: string }>) {
   const provider = getActiveProvider()
 
-  if (provider === "algolia") {
-    await syncProductsWorkflow(container).run({
-      input: { filters: { id: data.id } },
-    })
-  } else if (provider === "meilisearch") {
-    await syncProductsMeilisearchWorkflow(container).run({
-      input: { filters: { id: data.id } },
-    })
+  // If no search engine is active, nothing to buffer.
+  if (provider !== "algolia" && provider !== "meilisearch") return
+
+  try {
+    const redis = getRedisClient()
+    await redis.sadd(SEARCH_BUFFER_KEY, data.id)
+  } catch (err) {
+    // Redis unavailable — log and continue. The product will re-enter the buffer on
+    // its next update, or a full catalog resync can be triggered from admin.
+    log.error({ err, productId: data.id }, "Could not buffer product ID for search sync")
   }
-  // "default" — no external indexing needed
 }
 
 export const config: SubscriberConfig = {
