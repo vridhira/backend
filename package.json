@@ -83,6 +83,9 @@
     "vite": "^5.4.14",
     "yalc": "^1.0.0-pre.53"
   },
+  "resolutions": {
+    "next": "^15.5.9"
+  },
   "engines": {
     "node": ">=20"
   },
