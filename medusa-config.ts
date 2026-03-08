@@ -143,10 +143,25 @@ module.exports = defineConfig({
     {
       resolve: "./src/modules/faq-queries",
     },
+    // ── Custom: FAQ Articles Module ──────────────────────────────────────────
+    // Stores help center FAQ articles (add/edit/delete/hide/visibility).
+    // Public store API: GET /store/faq-articles (fetch visible articles).
+    // Admin API: GET/POST /admin/faq-articles (manage articles).
+    // Admin UI: /app/faq-queries → "FAQ Articles" tab (manage with modal forms).
+    {
+      resolve: "./src/modules/faq-articles",
+    },
     // ── Custom: Wishlist Module ──────────────────────────────────────────────
     // WishlistItem entity linked to Customer & Product via src/links/
     {
       resolve: "./src/modules/wishlist",
+    },
+    // ── Custom: Shipping Config Module ──────────────────────────────────────
+    // Admin-editable surcharge %, handling fee, fallback rate, free-shipping
+    // threshold. Read by ShiprocketFulfillmentService.calculatePrice.
+    // Manage via Admin → Shipping Config page.
+    {
+      resolve: "./src/modules/shipping-config",
     },
     // ── Custom: Razorpay Event Queue ────────────────────────────────────
     // Starts a BullMQ Worker that processes Razorpay webhook payloads asynchronously.
