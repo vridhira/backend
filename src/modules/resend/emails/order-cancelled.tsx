@@ -32,7 +32,7 @@ export function orderCancelledEmail({ order }: { order: any }) {
             <Body style={body}>
                 {/* ── Header ── */}
                 <Section style={headerSec}>
-                    <Text style={brand}>Vridhira Marketplace</Text>
+                    <Text style={brand}>himanshu Marketplace</Text>
                 </Section>
 
                 <Container style={container}>
@@ -128,7 +128,7 @@ export function orderCancelledEmail({ order }: { order: any }) {
                     {/* ── Shop Again CTA ── */}
                     <Section style={{ textAlign: "center", padding: "16px 32px 8px" }}>
                         <Text style={shopPrompt}>Ready to order again? Great deals are waiting!</Text>
-                        <Button href={process.env.STORE_URL || "https://vridhira.com"} style={shopBtn}>
+                        <Button href={process.env.STORE_URL || "https://himanshu.com"} style={shopBtn}>
                             Continue Shopping →
                         </Button>
                     </Section>
@@ -140,8 +140,8 @@ export function orderCancelledEmail({ order }: { order: any }) {
                         <Text style={helpTitle}>Didn't request this cancellation?</Text>
                         <Text style={helpText}>
                             If you did not cancel this order, please contact us immediately at{" "}
-                            <Link href="mailto:support@vridhira.com" style={helpLink}>
-                                support@vridhira.com
+                            <Link href="mailto:support@himanshu.com" style={helpLink}>
+                                support@himanshu.com
                             </Link>{" "}
                             and we'll investigate right away.
                         </Text>
@@ -150,8 +150,8 @@ export function orderCancelledEmail({ order }: { order: any }) {
 
                 {/* ── Footer ── */}
                 <Section style={footerSec}>
-                    <Text style={footerText}>© {new Date().getFullYear()} Vridhira Marketplace · All rights reserved.</Text>
-                    <Text style={footerText}>You received this because you placed an order on Vridhira.</Text>
+                    <Text style={footerText}>© {new Date().getFullYear()} himanshu Marketplace · All rights reserved.</Text>
+                    <Text style={footerText}>You received this because you placed an order on himanshu.</Text>
                 </Section>
             </Body>
         </Html>

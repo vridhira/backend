@@ -26,7 +26,7 @@ export function orderOutForDeliveryEmail({ order, awb, courier_name, tracking_ur
             <Body style={body}>
                 {/* ── Header ── */}
                 <Section style={headerSec}>
-                    <Text style={brand}>Vridhira Marketplace</Text>
+                    <Text style={brand}>himanshu Marketplace</Text>
                 </Section>
 
                 <Container style={container}>
@@ -157,10 +157,10 @@ export function orderOutForDeliveryEmail({ order, awb, courier_name, tracking_ur
                         <Text style={helpTitle}>Need Help?</Text>
                         <Row>
                             <Column>
-                                <Link href="https://vridhira.com/contact" style={helpLink}>Contact Support</Link>
+                                <Link href="https://himanshu.com/contact" style={helpLink}>Contact Support</Link>
                             </Column>
                             <Column style={{ textAlign: "right" }}>
-                                <Text style={helpEmail}>support@vridhira.com</Text>
+                                <Text style={helpEmail}>support@himanshu.com</Text>
                             </Column>
                         </Row>
                     </Section>
@@ -168,8 +168,8 @@ export function orderOutForDeliveryEmail({ order, awb, courier_name, tracking_ur
 
                 {/* ── Footer ── */}
                 <Section style={footerSec}>
-                    <Text style={footerText}>© {new Date().getFullYear()} Vridhira Marketplace · All rights reserved.</Text>
-                    <Text style={footerText}>You received this because you placed an order on Vridhira.</Text>
+                    <Text style={footerText}>© {new Date().getFullYear()} himanshu Marketplace · All rights reserved.</Text>
+                    <Text style={footerText}>You received this because you placed an order on himanshu.</Text>
                 </Section>
             </Body>
         </Html>

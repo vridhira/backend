@@ -39,7 +39,7 @@ export function orderPlacedEmail({ order }: { order: any }) {
             <Body style={body}>
                 {/* ── Header ── */}
                 <Section style={headerSec}>
-                    <Text style={brand}>Vridhira Marketplace</Text>
+                    <Text style={brand}>himanshu Marketplace</Text>
                 </Section>
 
                 <Container style={container}>
@@ -192,7 +192,7 @@ export function orderPlacedEmail({ order }: { order: any }) {
                     {/* ── CTA Button ── */}
                     <Section style={{ textAlign: "center", padding: "8px 32px 20px" }}>
                         <Button
-                            href={`${process.env.STORE_URL || "https://vridhira.com"}/account/orders/${order?.id}`}
+                            href={`${process.env.STORE_URL || "https://himanshu.com"}/account/orders/${order?.id}`}
                             style={ctaBtn}
                         >
                             View Order Status →
@@ -206,10 +206,10 @@ export function orderPlacedEmail({ order }: { order: any }) {
                         <Text style={helpTitle}>Need Help?</Text>
                         <Row>
                             <Column>
-                                <Text style={helpText}>📧 support@vridhira.com</Text>
+                                <Text style={helpText}>📧 support@himanshu.com</Text>
                             </Column>
                             <Column style={{ textAlign: "right" }}>
-                                <Link href="https://vridhira.com/returns" style={helpLink}>
+                                <Link href="https://himanshu.com/returns" style={helpLink}>
                                     Returns within 7 days
                                 </Link>
                             </Column>
@@ -219,8 +219,8 @@ export function orderPlacedEmail({ order }: { order: any }) {
 
                 {/* ── Footer ── */}
                 <Section style={footerSec}>
-                    <Text style={footerText}>© {new Date().getFullYear()} Vridhira Marketplace · All rights reserved.</Text>
-                    <Text style={footerText}>You received this because you placed an order on Vridhira.</Text>
+                    <Text style={footerText}>© {new Date().getFullYear()} himanshu Marketplace · All rights reserved.</Text>
+                    <Text style={footerText}>You received this because you placed an order on himanshu.</Text>
                 </Section>
             </Body>
         </Html>

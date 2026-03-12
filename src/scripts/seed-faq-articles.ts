@@ -185,14 +185,14 @@ const FAQ_ARTICLES_DATA = [
     display_order: 1,
   },
   {
-    title: "Why does Vridhira use Razorpay?",
+    title: "Why does himanshu use Razorpay?",
     description: "Information about our payment provider and security.",
     section: "payments",
     content: "Razorpay is PCI-DSS Level 1 certified and trusted by 500,000+ businesses. It's India's most secure payment gateway.",
     display_order: 2,
   },
   {
-    title: "Does Vridhira store my credit card details?",
+    title: "Does himanshu store my credit card details?",
     description: "Clarification about card data storage and security.",
     section: "payments",
     content: "No, we never store your full credit card details. Only the last 4 digits are saved for reference.",
@@ -206,7 +206,7 @@ const FAQ_ARTICLES_DATA = [
     display_order: 4,
   },
   {
-    title: "How secure is net banking on Vridhira?",
+    title: "How secure is net banking on himanshu?",
     description: "Security measures for net banking transactions.",
     section: "payments",
     content: "We use 256-bit SSL encryption and 2FA for maximum security. Your bank details are never stored.",
@@ -406,7 +406,7 @@ const FAQ_ARTICLES_DATA = [
     display_order: 1,
   },
   {
-    title: "What measures does Vridhira take to prevent fraud?",
+    title: "What measures does himanshu take to prevent fraud?",
     description: "Security practices and fraud prevention mechanisms.",
     section: "trust",
     content: "We use Razorpay (PCI-DSS), monitor transaction patterns, verify addresses, and use AI-based fraud detection.",
@@ -420,7 +420,7 @@ const FAQ_ARTICLES_DATA = [
     display_order: 3,
   },
   {
-    title: "How does Vridhira ensure seller credibility?",
+    title: "How does himanshu ensure seller credibility?",
     description: "Information about seller verification and vetting process.",
     section: "trust",
     content: "All sellers are verified, rated by customers, and monitored for compliance. We remove fraudulent sellers.",
@@ -469,23 +469,23 @@ const FAQ_ARTICLES_DATA = [
     display_order: 10,
   },
   {
-    title: "Does Vridhira have any sustainability or eco-friendly initiatives?",
+    title: "Does himanshu have any sustainability or eco-friendly initiatives?",
     description: "Information about environmental practices.",
     section: "trust",
     content: "Yes, we use eco-friendly packaging, partner with sustainable sellers, and offset carbon. Learn more on our Sustainability page.",
     display_order: 11,
   },
   {
-    title: "Where is Vridhira based and can I visit your office?",
+    title: "Where is himanshu based and can I visit your office?",
     description: "Information about company location and office visits.",
     section: "trust",
-    content: "Vridhira is headquartered in India. Physical office visits by appointment only. Contact support for details.",
+    content: "himanshu is headquartered in India. Physical office visits by appointment only. Contact support for details.",
     display_order: 12,
   },
 
   // ── Miscellaneous ─────────────────────────────────────
   {
-    title: "How do I search for products on Vridhira?",
+    title: "How do I search for products on himanshu?",
     description: "Guide to using the search functionality to find products.",
     section: "miscellaneous",
     content: "Use the search bar at the top of the page. Type product name, brand, or category. Results appear in real-time with suggestions.",
@@ -520,7 +520,7 @@ const FAQ_ARTICLES_DATA = [
     display_order: 5,
   },
   {
-    title: "What is the Vridhira loyalty program?",
+    title: "What is the himanshu loyalty program?",
     description: "Information about rewards and benefits for regular customers.",
     section: "miscellaneous",
     content: "Earn reward points on every purchase. Redeem points for discounts, free shipping, or exclusive offers.",
@@ -541,7 +541,7 @@ const FAQ_ARTICLES_DATA = [
     display_order: 8,
   },
   {
-    title: "How do I subscribe to the Vridhira newsletter?",
+    title: "How do I subscribe to the himanshu newsletter?",
     description: "Steps to sign up for email updates and special offers.",
     section: "miscellaneous",
     content: "Enter your email at website footer or in Settings > Preferences. Get early access to sales and exclusive deals.",
@@ -555,7 +555,7 @@ const FAQ_ARTICLES_DATA = [
     display_order: 10,
   },
   {
-    title: "Does Vridhira have a mobile app?",
+    title: "Does himanshu have a mobile app?",
     description: "Information about shopping on mobile and availability of apps.",
     section: "miscellaneous",
     content: "Yes, download from App Store (iOS) or Google Play (Android). App features exclusive mobile-only deals.",
@@ -569,7 +569,7 @@ const FAQ_ARTICLES_DATA = [
     display_order: 12,
   },
   {
-    title: "How do I use gift cards on Vridhira?",
+    title: "How do I use gift cards on himanshu?",
     description: "Steps to purchase and redeem gift cards.",
     section: "miscellaneous",
     content: "Buy gift cards from My Account > Gift Cards section. Recipients can redeem during checkout. No expiry.",
@@ -577,7 +577,7 @@ const FAQ_ARTICLES_DATA = [
   },
   {
     title: "Can I purchase gift cards for others?",
-    description: "Information about gifting with Vridhira gift cards.",
+    description: "Information about gifting with himanshu gift cards.",
     section: "miscellaneous",
     content: "Yes, purchase e-gift cards and send directly via email with custom message. Recipient gets code to redeem.",
     display_order: 14,
@@ -647,13 +647,13 @@ const FAQ_ARTICLES_DATA = [
   },
   {
     title: "How do I provide feedback or suggestions?",
-    description: "How to share your ideas for improving Vridhira.",
+    description: "How to share your ideas for improving himanshu.",
     section: "miscellaneous",
     content: "Visit My Account > Support > Feedback. Share suggestions for features or improvements. We love hearing from customers.",
     display_order: 24,
   },
   {
-    title: "What are the system requirements to use Vridhira website?",
+    title: "What are the system requirements to use himanshu website?",
     description: "Technical requirements for smooth browsing experience.",
     section: "miscellaneous",
     content: "Works on all modern browsers (Chrome, Safari, Firefox, Edge). Minimum 2GB RAM recommended. Mobile browser compatible.",
@@ -667,7 +667,7 @@ const FAQ_ARTICLES_DATA = [
     display_order: 26,
   },
   {
-    title: "Does Vridhira have any seasonal sales or special events?",
+    title: "Does himanshu have any seasonal sales or special events?",
     description: "Information about sales, festivals, and special events.",
     section: "miscellaneous",
     content: "Yes! Festival sales, Birthday Month specials, Flash sales, and Clearance events. Subscribe to get early notifications.",
@@ -681,14 +681,14 @@ const FAQ_ARTICLES_DATA = [
     display_order: 28,
   },
   {
-    title: "How can I contact Vridhira customer support?",
+    title: "How can I contact himanshu customer support?",
     description: "Complete list of support channels and response times.",
     section: "miscellaneous",
-    content: "Email: support@vridhira.com | WhatsApp: +91-XXXXX | Chat: Available 9AM-9PM IST daily. Average response: 2 hours.",
+    content: "Email: support@himanshu.com | WhatsApp: +91-XXXXX | Chat: Available 9AM-9PM IST daily. Average response: 2 hours.",
     display_order: 29,
   },
   {
-    title: "What are Vridhira's business hours?",
+    title: "What are himanshu's business hours?",
     description: "Operating hours and availability information.",
     section: "miscellaneous",
     content: "We operate 24/7. Customer support: 9AM-9PM IST, Monday-Sunday. Orders processed throughout the day.",

@@ -19,17 +19,17 @@ export function passwordResetEmail({
     return (
         <Html>
             <Head />
-            <Preview>Reset your Vridhira Marketplace password</Preview>
+            <Preview>Reset your himanshu Marketplace password</Preview>
             <Body style={body}>
                 <Section style={headerSec}>
-                    <Text style={brand}>Vridhira Marketplace</Text>
+                    <Text style={brand}>himanshu Marketplace</Text>
                 </Section>
                 <Container style={container}>
                     <Section style={{ padding: "32px 0 16px" }}>
                         <Text style={emoji}>🔐</Text>
                         <Heading style={h1}>Reset your password</Heading>
                         <Text style={para}>
-                            Hi {displayName}, we received a request to reset the password for your Vridhira
+                            Hi {displayName}, we received a request to reset the password for your himanshu
                             Marketplace account. Click the button below to choose a new password.
                         </Text>
                     </Section>
@@ -57,7 +57,7 @@ export function passwordResetEmail({
 
                     <Hr style={hr} />
                     <Text style={footer}>
-                        © {new Date().getFullYear()} Vridhira Marketplace · India
+                        © {new Date().getFullYear()} himanshu Marketplace · India
                     </Text>
                 </Container>
             </Body>
