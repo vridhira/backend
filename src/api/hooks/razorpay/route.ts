@@ -12,7 +12,7 @@ const log = logger.child({ module: "razorpay-webhook" })
  * Register at: Razorpay Dashboard → Settings → Webhooks
  *
  * URL (dev):  https://<ngrok-url>/hooks/razorpay
- * URL (prod): https://admin.vridhira.in/hooks/razorpay
+ * URL (prod): https://admin.himanshu.in/hooks/razorpay
  *
  * Architecture:
  *   This handler does EXACTLY two things:

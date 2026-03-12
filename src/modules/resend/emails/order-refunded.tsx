@@ -37,7 +37,7 @@ export function orderRefundedEmail({ order, refund_amount }: {
             <Body style={body}>
                 {/* ── Header ── */}
                 <Section style={headerSec}>
-                    <Text style={brand}>Vridhira Marketplace</Text>
+                    <Text style={brand}>Himanshu Marketplace</Text>
                 </Section>
 
                 <Container style={container}>
@@ -93,8 +93,8 @@ export function orderRefundedEmail({ order, refund_amount }: {
                                     </Text>
                                     <Text style={{ ...codText, marginTop: 6 }}>
                                         Alternatively, email us at{" "}
-                                        <Link href="mailto:support@vridhira.com" style={inlineLink}>
-                                            support@vridhira.com
+                                        <Link href="mailto:support@himanshu.com" style={inlineLink}>
+                                            support@himanshu.com
                                         </Link>{" "}
                                         with your bank account details to speed up the process.
                                     </Text>
@@ -161,7 +161,7 @@ export function orderRefundedEmail({ order, refund_amount }: {
 
                     {/* ── CTA ── */}
                     <Section style={{ textAlign: "center", padding: "16px 32px 8px" }}>
-                        <Button href={process.env.STORE_URL || "https://vridhira.com"} style={shopBtn}>
+                        <Button href={process.env.STORE_URL || "https://himanshu.com"} style={shopBtn}>
                             Continue Shopping →
                         </Button>
                     </Section>
@@ -170,8 +170,8 @@ export function orderRefundedEmail({ order, refund_amount }: {
                     <Section style={helpSec}>
                         <Text style={helpText}>
                             Questions about your refund?{" "}
-                            <Link href="mailto:support@vridhira.com" style={helpLink}>
-                                support@vridhira.com
+                            <Link href="mailto:support@himanshu.com" style={helpLink}>
+                                support@himanshu.com
                             </Link>
                         </Text>
                     </Section>
@@ -179,8 +179,8 @@ export function orderRefundedEmail({ order, refund_amount }: {
 
                 {/* ── Footer ── */}
                 <Section style={footerSec}>
-                    <Text style={footerText}>© {new Date().getFullYear()} Vridhira Marketplace · All rights reserved.</Text>
-                    <Text style={footerText}>You received this because you placed an order on Vridhira.</Text>
+                    <Text style={footerText}>© {new Date().getFullYear()} Himanshu Marketplace · All rights reserved.</Text>
+                    <Text style={footerText}>You received this because you placed an order on Himanshu.</Text>
                 </Section>
             </Body>
         </Html>

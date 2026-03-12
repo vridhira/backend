@@ -98,5 +98,5 @@ export default async function codUnlockTrackerHandler({
 
 export const config: SubscriberConfig = {
     event: "order.placed",
-    context: { subscriberId: "vridhira-cod-unlock-tracker" },
+    context: { subscriberId: "himanshu-cod-unlock-tracker" },
 }
