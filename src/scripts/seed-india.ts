@@ -14,7 +14,7 @@ type FulfillmentModuleService = {
 }
 
 /**
- * India Region Seed Script for Himanshu Marketplace
+ * India Region Seed Script for The Marketplace
  *
  * Sets up:
  * - India region with INR currency

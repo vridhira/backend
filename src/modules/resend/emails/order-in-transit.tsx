@@ -29,7 +29,7 @@ export function orderInTransitEmail({ order, awb, courier_name, tracking_url, cu
             <Body style={body}>
                 {/* ── Header ── */}
                 <Section style={headerSec}>
-                    <Text style={brand}>Himanshu Marketplace</Text>
+                    <Text style={brand}>The Marketplace</Text>
                 </Section>
 
                 <Container style={container}>
@@ -161,7 +161,7 @@ export function orderInTransitEmail({ order, awb, courier_name, tracking_url, cu
 
                 {/* ── Footer ── */}
                 <Section style={footerSec}>
-                    <Text style={footerText}>© {new Date().getFullYear()} Himanshu Marketplace · All rights reserved.</Text>
+                    <Text style={footerText}>© {new Date().getFullYear()} The Marketplace · All rights reserved.</Text>
                     <Text style={footerText}>You received this because you placed an order on Himanshu.</Text>
                 </Section>
             </Body>

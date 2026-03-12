@@ -32,7 +32,7 @@ export function orderCancelledEmail({ order }: { order: any }) {
             <Body style={body}>
                 {/* ── Header ── */}
                 <Section style={headerSec}>
-                    <Text style={brand}>Himanshu Marketplace</Text>
+                    <Text style={brand}>The Marketplace</Text>
                 </Section>
 
                 <Container style={container}>
@@ -150,7 +150,7 @@ export function orderCancelledEmail({ order }: { order: any }) {
 
                 {/* ── Footer ── */}
                 <Section style={footerSec}>
-                    <Text style={footerText}>© {new Date().getFullYear()} Himanshu Marketplace · All rights reserved.</Text>
+                    <Text style={footerText}>© {new Date().getFullYear()} The Marketplace · All rights reserved.</Text>
                     <Text style={footerText}>You received this because you placed an order on Himanshu.</Text>
                 </Section>
             </Body>
