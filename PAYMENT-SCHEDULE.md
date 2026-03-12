@@ -1,6 +1,6 @@
 # Commercial License — Monthly Payment Schedule & Procedures
 
-**For himanshu E-Commerce Commercial Licensees**
+**For Himanshu E-Commerce Commercial Licensees**
 
 ---
 
@@ -68,10 +68,10 @@ Total Payment Due = Monthly Royalty + Any Previous Month Arrears
 ### By 15th of Each Month, Email This Report:
 
 ```
-Subject: [Company Name] - himanshu Royalty Report - [Month/Year]
+Subject: [Company Name] - Himanshu Royalty Report - [Month/Year]
 
 ────────────────────────────────────────────────────────────────
-himanshu COMMERCIAL LICENSE - MONTHLY ROYALTY REPORT
+Himanshu COMMERCIAL LICENSE - MONTHLY ROYALTY REPORT
 
 Report Month:              March 2026
 Company Name:              [Your Company]
@@ -101,7 +101,7 @@ PAYMENT DETAILS:
   Current Month Royalty:     ₹______________
   TOTAL AMOUNT DUE:          ₹______________
 
-  Payment Reference:         himanshu-[CompanyName]-[Month-YYYY]
+  Payment Reference:         Himanshu-[CompanyName]-[Month-YYYY]
 
 CERTIFICATION:
   I certify that the above revenue figures are accurate and based on
@@ -138,11 +138,11 @@ IFSC Code:         [To be provided]
 Always use this format in your bank transfer reference/description:
 
 ```
-himanshu-[CompanyName]-[MonthYear]
+Himanshu-[CompanyName]-[MonthYear]
 
 Example:
-  himanshu-AcmeShop-March2026
-  himanshu-TechMart-Apr2026
+  Himanshu-AcmeShop-March2026
+  Himanshu-TechMart-Apr2026
 ```
 
 ### Email Confirmation Template
@@ -150,7 +150,7 @@ Example:
 After making the transfer, email confirmation:
 
 ```
-Subject: himanshu Royalty Payment Confirmation - [Month/Year]
+Subject: Himanshu Royalty Payment Confirmation - [Month/Year]
 
 Payment Submitted:
   Company Name:        [Your Company]
@@ -294,8 +294,8 @@ Interest Rate:     None (no interest on refunds)
      - Bank statement (redacted)
      - Accounting summary
      - Sales report
-   - Email to: himanshu@example.com
-   - Subject: "[Company] himanshu Report - [Month/Year]"
+   - Email to: hk8913114@gmail.com
+   - Subject: "[Company] Himanshu Report - [Month/Year]"
 
 ### 4️⃣ **Days 11-14: Licensor Review**
    - Licensor acknowledges receipt
@@ -372,8 +372,8 @@ Submitting false revenue figures is:
 - ✅ This file (payment procedures)
 
 ### Contact Licensor:
-📧 **Email:** himanshu@example.com
-Subject: "himanshu Payment Question - [Your Company]"
+📧 **Email:** hk8913114@gmail.com
+Subject: "Himanshu Payment Question - [Your Company]"
 
 ---
 
@@ -392,7 +392,7 @@ Subject: "himanshu Payment Question - [Your Company]"
 
 **Ready to get started?**
 
-📧 Email: himanshu@example.com with your company details to receive full bank account information and official agreement.
+📧 Email: hk8913114@gmail.com with your company details to receive full bank account information and official agreement.
 
 **Let's build this together! 🚀**
 

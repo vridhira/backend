@@ -69,7 +69,7 @@ async function main() {
 
   // Create the scoped key
   const key = await client.createKey({
-    name:        "himanshu-backend-scoped",
+    name:        "Himanshu-backend-scoped",
     description: "Scoped server key for E-Commerce Backend: index + search products only",
     actions: [
       "documents.add",

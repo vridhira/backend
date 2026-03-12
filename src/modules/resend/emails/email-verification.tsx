@@ -20,17 +20,17 @@ export function emailVerificationEmail({
     return (
         <Html>
             <Head />
-            <Preview>Verify your email address for himanshu Marketplace</Preview>
+            <Preview>Verify your email address for Himanshu Marketplace</Preview>
             <Body style={body}>
                 <Section style={headerSec}>
-                    <Text style={brand}>himanshu Marketplace</Text>
+                    <Text style={brand}>Himanshu Marketplace</Text>
                 </Section>
                 <Container style={container}>
                     <Section style={{ padding: "32px 0 16px" }}>
                         <Text style={emoji}>✉️</Text>
                         <Heading style={h1}>Verify your email address</Heading>
                         <Text style={para}>
-                            Hi {displayName}, thanks for joining himanshu Marketplace! Please verify your
+                            Hi {displayName}, thanks for joining Himanshu Marketplace! Please verify your
                             email address by clicking the button below to activate your account.
                         </Text>
                     </Section>
@@ -45,7 +45,7 @@ export function emailVerificationEmail({
 
                     <Text style={smallNote}>
                         This link expires in <strong>{expiry_hours} hours</strong>. If you didn&apos;t
-                        create a himanshu Marketplace account, you can safely ignore this email.
+                        create a Himanshu Marketplace account, you can safely ignore this email.
                     </Text>
 
                     <Text style={smallNote}>
@@ -57,7 +57,7 @@ export function emailVerificationEmail({
 
                     <Hr style={hr} />
                     <Text style={footer}>
-                        © {new Date().getFullYear()} himanshu Marketplace · India
+                        © {new Date().getFullYear()} Himanshu Marketplace · India
                     </Text>
                 </Container>
             </Body>

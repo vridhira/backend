@@ -161,7 +161,7 @@ async function sendOtpViaMSG91(
 // ── Service ───────────────────────────────────────────────────────────────────
 
 /**
- * Cash on Delivery Payment Provider for himanshu Marketplace
+ * Cash on Delivery Payment Provider for Himanshu Marketplace
  *
  * Implements industry-standard COD with fraud prevention:
  * - Order value limits (₹100 min, ₹50,000 max)               ← enforced in initiatePayment

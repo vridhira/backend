@@ -14,7 +14,7 @@ type FulfillmentModuleService = {
 }
 
 /**
- * India Region Seed Script for himanshu Marketplace
+ * India Region Seed Script for Himanshu Marketplace
  *
  * Sets up:
  * - India region with INR currency
@@ -79,7 +79,7 @@ export default async function seedIndia({ container }: ExecArgs) {
 
         // ── Step 3: Create fulfillment set (shipping type) ──
         const existingFulfillmentSets = await fulfillmentService
-            .listFulfillmentSets({ name: "himanshu-fulfillment" })
+            .listFulfillmentSets({ name: "Himanshu-fulfillment" })
             .catch(() => [] as Array<{ id: string }>)
 
         let fulfillmentSet: { id: string }
@@ -87,7 +87,7 @@ export default async function seedIndia({ container }: ExecArgs) {
             fulfillmentSet = existingFulfillmentSets[0]
         } else {
             fulfillmentSet = await fulfillmentService.createFulfillmentSets({
-                name: "himanshu-fulfillment",
+                name: "Himanshu-fulfillment",
                 type: "shipping",
             })
         }
