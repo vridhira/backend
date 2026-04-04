@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability (private)
+    url: mailto:hk8913114@gmail.com?subject=Security%20Report%20-%20backend
+    about: Report vulnerabilities privately. Do not post public exploit details.
+  - name: Licensing and commercial inquiry
+    url: mailto:hk8913114@gmail.com?subject=Commercial%20License%20Request
+    about: Questions related to commercial usage and licensing.
