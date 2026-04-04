@@ -6,6 +6,16 @@ It is an India-focused e-commerce backend built on **MedusaJS v2**, extending th
 
 ---
 
+## Community Health
+
+- Contribution Guide: [CONTRIBUTING.md](./CONTRIBUTING.md)
+- Code of Conduct: [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+- Security Policy: [SECURITY.md](./SECURITY.md)
+- Governance: [GOVERNANCE.md](./GOVERNANCE.md)
+- Support: [SUPPORT.md](./SUPPORT.md)
+
+---
+
 ## Tech Stack
 
 | Layer | Choice |

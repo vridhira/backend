@@ -1,0 +1,25 @@
+name: Security Report (Private)
+description: Instructions for reporting vulnerabilities privately
+labels: [security]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not disclose vulnerabilities publicly here.
+
+        Please report security issues privately by email:
+
+        - hk8913114@gmail.com
+        - Subject: Security Report - backend - <short title>
+
+        Include reproduction steps, impact, affected components, and PoC details.
+
+        See SECURITY.md for full policy.
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I understand this repository requires private security disclosure
+          required: true
