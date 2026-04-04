@@ -210,7 +210,7 @@ Violations may result in:
 
 ## 🙌 Thank You
 
-Whether you choose Community or Commercial License, thank you for using this project!
+Whether you choose Community or Commercial License, thank you for using Himanshu!
 
 Your support helps sustain this project and make it better for everyone.
 
